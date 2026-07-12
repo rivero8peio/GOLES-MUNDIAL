@@ -188,16 +188,31 @@ export default function App() {
 
     const entries = Object.values(dataMap).filter((entry: any) => entry.name !== 'N/A');
 
-    // Sorting logic: low to high numbers, A-Z for text
-    entries.sort((a: any, b: any) => {
-      const isNumA = !isNaN(Number(a.name)) && a.name !== '';
-      const isNumB = !isNaN(Number(b.name)) && b.name !== '';
+    // Sorting logic: custom order for FASE, low to high numbers / A-Z for others
+    if (columnName.trim().toUpperCase() === 'FASE') {
+      const getFasePriority = (name: string) => {
+        const lower = name.toLowerCase().trim();
+        if (lower.includes('grupo')) return 0;
+        if (lower.includes('dieciseis') || lower.includes('16')) return 1;
+        if (lower.includes('octavo') || lower.includes('8')) return 2;
+        if (lower.includes('cuarto') || lower.includes('4')) return 3;
+        if (lower.includes('semi')) return 4;
+        if (lower.includes('tercer') || lower.includes('3')) return 5;
+        if (lower.includes('final')) return 6;
+        return 99; // unknown at the end
+      };
+      entries.sort((a: any, b: any) => getFasePriority(a.name) - getFasePriority(b.name));
+    } else {
+      entries.sort((a: any, b: any) => {
+        const isNumA = !isNaN(Number(a.name)) && a.name !== '';
+        const isNumB = !isNaN(Number(b.name)) && b.name !== '';
 
-      if (isNumA && isNumB) return Number(a.name) - Number(b.name);
-      if (isNumA) return -1;
-      if (isNumB) return 1;
-      return String(a.name).localeCompare(String(b.name));
-    });
+        if (isNumA && isNumB) return Number(a.name) - Number(b.name);
+        if (isNumA) return -1;
+        if (isNumB) return 1;
+        return String(a.name).localeCompare(String(b.name));
+      });
+    }
 
     return entries;
   };
